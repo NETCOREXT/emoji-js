@@ -1,0 +1,171 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - alpha
+      - beta
+      - rc
+
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Force exec
+        type: boolean
+        required: true
+
+jobs:
+  Detect:
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.detect.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Detect Change
+        id: detect
+        run: |
+          APP="${GITHUB_REPOSITORY#*/}"
+
+          CHANGE_FILES=`git diff --no-commit-id --name-only HEAD^`
+
+          CHANGED=`echo "$CHANGE_FILES" | grep -Em 1 ".*(.js|.ts|.json)|package.json" || true`
+          if [ -z "$CHANGED" ] && [ "${{ inputs.force }}" != true ]; then
+            APP=""
+          fi
+
+          echo "app=${APP}" >> $GITHUB_OUTPUT
+  Build:
+    needs: Detect
+    if: needs.Detect.outputs.app != ''
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.bundle.outputs.branch }}
+      short-sha: ${{ steps.bundle.outputs.short-sha }}
+      version: ${{ steps.bundle.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: ${{ vars.NPM_API_URL }}
+      - uses: pnpm/action-setup@v4
+      - name: Get pnpm store path
+        shell: bash
+        run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install required packages
+        run: |
+          pnpm i -g semver
+      - name: Bundle Packages
+        id: bundle
+        run: |
+          COMMIT_SHORT_SHA=`git rev-parse --short ${GITHUB_SHA}`
+          BRANCH=`echo "${GITHUB_REF_NAME,,}" | sed 's/\//-/g'`
+          VERSION=`jq -r '(.version?|tostring)' package.json`
+
+          API_DATA=`npm info @netcorext/emoji-js versions --json`
+
+          if [ "${BRANCH}" == "main" ]; then
+            QVER=$VERSION
+            VER=`echo "$API_DATA" | jq -r 'first(.[] | select(. == "'${QVER}'"))'`
+          else
+            QVER=${VERSION}-${BRANCH}
+            VER=`echo "$API_DATA" | jq -r 'first(.[] | select(. | startswith("'${QVER}'")))'`
+          fi
+
+          if [ -z "$VER" ]; then
+            echo "Version not found: $QVER"
+          else
+            echo "Current Version: $VER"
+
+            NEXT_VER=`semver $VER -i prerelease --preid ${BRANCH}`
+            if [ "${BRANCH}" == "main" ]; then
+              NEXT_VER=`semver $VER -i`
+            fi
+          fi
+
+          if [ -z "$NEXT_VER" ]; then
+            NEXT_VER="${VERSION}-${BRANCH}.0"
+            if [ "${BRANCH}" == "main" ]; then
+              NEXT_VER="${VERSION}"
+            fi
+          fi
+
+          echo "Next Version: $NEXT_VER"
+
+          for i in $(find packages -type f -name "package.json")
+          do
+            echo "Update version in $i"
+            tem=`jq --indent 2 '.version = "'${NEXT_VER}'"' "$i"`
+            echo "$tem" > "$i"
+          done
+
+          pnpm i --ignore-scripts --frozen-lockfile --prefer-offline
+          pnpm build
+          pnpm bundle
+
+          mkdir -p ./packages-${COMMIT_SHORT_SHA}
+
+          cp .npmrc ./packages-${COMMIT_SHORT_SHA}/
+
+          for i in $(find . -type f -iname "*.tgz")
+          do
+            cp "$i" ./packages-${COMMIT_SHORT_SHA}/
+          done
+
+          ls -al ./packages-${COMMIT_SHORT_SHA}
+
+          echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
+          echo "short-sha=${COMMIT_SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "version=${NEXT_VER}" >> $GITHUB_OUTPUT
+      - uses: actions/upload-artifact@v4
+        name: Upload packages to artifact
+        with:
+          name: packages-${{ steps.bundle.outputs.short-sha }}
+          path: ./packages-${{ steps.bundle.outputs.short-sha }}
+          include-hidden-files: true
+
+  Deploy:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages-${{ needs.Build.outputs.short-sha }}
+          path: ./packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: ${{ vars.NPM_API_URL }}
+      - name: Publish Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
+        run: |
+          for i in $(find . -type f -iname "*.tgz")
+          do
+            BN=`basename $i`
+            FN=${BN%.*}
+            FN=${FN#*-}
+            TMP=`echo "$FN" | sed -E 's/(.*)-([0-9].*)/PN=\1\nVER=\2/'`
+
+            eval $TMP
+
+            DEFAULT_TAG="${{ needs.Build.outputs.branch }}-latest"
+            if [ "${{ needs.Build.outputs.branch }}" == "main" ]; then
+              DEFAULT_TAG=""
+            fi
+
+            npm publish "$i"
+            npm dist-tag add @netcorext/${PN}@${VER} ${DEFAULT_TAG} ${{ needs.Build.outputs.short-sha }}
+          done
