@@ -74,7 +74,7 @@ jobs:
           BRANCH=`echo "${GITHUB_REF_NAME,,}" | sed 's/\//-/g'`
           VERSION=`jq -r '(.version?|tostring)' package.json`
 
-          API_DATA=`npm info @netcorext/emoji-js versions --json`
+          API_DATA=`npm info @netcorext/emoji-js versions --json 2>/dev/null || echo '[]'`
 
           if [ "${BRANCH}" == "main" ]; then
             QVER=$VERSION
@@ -104,7 +104,7 @@ jobs:
 
           echo "Next Version: $NEXT_VER"
 
-          for i in $(find packages -type f -name "package.json")
+          for i in $(find ./ -type f -name "package.json")
           do
             echo "Update version in $i"
             tem=`jq --indent 2 '.version = "'${NEXT_VER}'"' "$i"`
@@ -116,8 +116,6 @@ jobs:
           pnpm bundle
 
           mkdir -p ./packages-${COMMIT_SHORT_SHA}
-
-          cp .npmrc ./packages-${COMMIT_SHORT_SHA}/
 
           for i in $(find . -type f -iname "*.tgz")
           do
@@ -166,6 +164,6 @@ jobs:
               DEFAULT_TAG=""
             fi
 
-            npm publish "$i"
+            npm publish --access public "$i"
             npm dist-tag add @netcorext/${PN}@${VER} ${DEFAULT_TAG} ${{ needs.Build.outputs.short-sha }}
           done

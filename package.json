@@ -1,0 +1,75 @@
+{
+  "name": "@netcorext/emoji-js",
+  "type": "module",
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.15.4",
+  "description": "Emoji Library",
+  "author": "Netcorext <aren@netcorext.com>",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netcorext/emoji-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/netcorext/emoji-js/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.mjs",
+      "require": "./dist/types/index.js"
+    },
+    "./types/*": {
+      "types": "./dist/types/*/index.d.ts",
+      "import": "./dist/types/*/index.mjs",
+      "require": "./dist/types/*/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "bundle": "pnpm pack",
+    "lint": "eslint --cache .",
+    "lint:fix": "eslint --cache --fix .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit --skipLibCheck"
+  },
+  "dependencies": {
+    "fuse.js": "^7.1.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.1.1",
+    "@types/node": "^22.7.5",
+    "eslint": "^9.19.0",
+    "eslint-plugin-format": "^1.0.1",
+    "glob": "^11.0.3",
+    "readline": "^1.3.0",
+    "typescript": "^5.7.3",
+    "unbuild": "^2.0.0",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "^4.2.3",
+    "vitest": "^2.1.2"
+  }
+}
