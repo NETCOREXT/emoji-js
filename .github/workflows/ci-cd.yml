@@ -79,6 +79,9 @@ jobs:
           if [ "${BRANCH}" == "main" ]; then
             QVER=$VERSION
             VER=`echo "$API_DATA" | jq -r 'first(.[] | select(. == "'${QVER}'"))'`
+            if [ -z "$VER" ]; then
+              VER=`npm info @netcorext/emoji-js version`
+            fi
           else
             QVER=${VERSION}-${BRANCH}
             VER=`echo "$API_DATA" | jq -r 'first(.[] | select(. | startswith("'${QVER}'")))'`

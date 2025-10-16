@@ -10,11 +10,12 @@ A modern emoji library based on the official Unicode 17.0 emoji test file, provi
 
 - 🔍 **Smart Search**: Fuzzy search powered by Fuse.js
 - 📱 **Latest Unicode 17.0**: All official Unicode 17.0 emojis included
-ref: https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt
+  ref: https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt
 - 🏷️ **Organized**: Group and subgroup classification
 - 📊 **Status Filtering**: Filter by emoji status (fully-qualified, unqualified, etc.)
 - 🎨 **Skin Tone Support**: Filter emojis with or without skin tone variations
-- 📦 **Zero Config**: Works out of the box
+- � **Version Filtering**: Filter by Unicode version using semver (e.g., '>=13.0.0', '<17.0.0')
+- �📦 **Zero Config**: Works out of the box
 - 🔧 **TypeScript**: Full type support
 - 🚀 **Modern**: ESM and CommonJS dual support
 
@@ -54,7 +55,8 @@ console.log(simpleEmojis) // ['❤️', '💛', '💚', ...]
 Get an array of complete emoji objects.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+
+- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Emoji[]`
 
@@ -71,6 +73,10 @@ const smileysEmojis = useEmoji({ group: 'Smileys & Emotion' })
 // Filter by subgroup
 const faceSmilingEmojis = useEmoji({ subgroup: 'face-smiling' })
 
+// Filter by Unicode version
+const olderEmojis = useEmoji({ version: '<17.0.0' })
+const recentEmojis = useEmoji({ version: '>=15.0.0' })
+
 // Filter by status
 const fullyQualifiedEmojis = useEmoji({ status: 'fully-qualified' })
 
@@ -84,6 +90,7 @@ const noSkinToneEmojis = useEmoji({ skinTone: false })
 const result = useEmoji({
   keyword: 'smile',
   group: 'Smileys & Emotion',
+  version: '>=13.0.0',
   status: 'fully-qualified'
 })
 ```
@@ -93,7 +100,8 @@ const result = useEmoji({
 Get a simplified array of emoji strings.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+
+- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `string[]`
 
@@ -109,6 +117,9 @@ console.log(heartEmojis) // ['❤️', '💛', '💚', ...]
 // Get only fully-qualified emojis
 const qualifiedEmojis = useSimpleEmoji({ status: 'fully-qualified' })
 
+// Get emojis from specific Unicode version
+const legacyEmojis = useSimpleEmoji({ version: '<15.0.0' })
+
 // Get emojis with skin tone variations
 const diverseEmojis = useSimpleEmoji({ skinTone: true })
 ```
@@ -118,7 +129,8 @@ const diverseEmojis = useSimpleEmoji({ skinTone: true })
 Organize emojis by groups.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+
+- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Record<string, Set<string>>`
 
@@ -139,6 +151,9 @@ const searchGrouped = useEmojiByGroup('animal')
 
 // Group only fully-qualified emojis
 const qualifiedGrouped = useEmojiByGroup({ status: 'fully-qualified' })
+
+// Group emojis from specific version range
+const versionGrouped = useEmojiByGroup({ version: '>=14.0.0 <17.0.0' })
 ```
 
 ### `useEmojiBySubGroup(filter?)`
@@ -146,7 +161,8 @@ const qualifiedGrouped = useEmojiByGroup({ status: 'fully-qualified' })
 Organize emojis by groups and subgroups.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+
+- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Record<string, Record<string, Set<string>>>`
 
@@ -171,6 +187,7 @@ console.log(subGroupedEmojis)
 // Filter by specific criteria
 const filteredSubGroups = useEmojiBySubGroup({
   group: 'People & Body',
+  version: '>=13.0.0',
   skinTone: false
 })
 ```
@@ -267,6 +284,42 @@ function getPeopleWithSkinTones() {
     skinTone: true,
     status: 'fully-qualified'
   })
+}
+```
+
+### 5. Version-based Filtering
+
+```typescript
+import { useEmoji, useSimpleEmoji } from '@netcorext/emoji-js'
+
+// Get older emojis for legacy support
+function getLegacyEmojis() {
+  return useEmoji({ version: '<15.0.0' })
+}
+
+// Get recently added emojis
+function getLatestEmojis() {
+  return useEmoji({ version: '>=16.0.0' })
+}
+
+// Get emojis from a specific version range
+function getVersionRangeEmojis(minVersion: string, maxVersion: string) {
+  return useEmoji({ version: `>=${minVersion} <${maxVersion}` })
+}
+
+// Combine version filtering with other criteria
+function getRecentAnimalEmojis() {
+  return useSimpleEmoji({
+    group: 'Animals & Nature',
+    version: '>=15.0.0',
+    status: 'fully-qualified'
+  })
+}
+
+// Check compatibility for specific Unicode versions
+function isEmojiSupportedInVersion(emoji: string, targetVersion: string) {
+  const emojis = useEmoji({ version: `<=${targetVersion}` })
+  return emojis.some(e => e.emoji === emoji)
 }
 ```
 

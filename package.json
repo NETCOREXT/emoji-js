@@ -1,13 +1,14 @@
 {
   "name": "@netcorext/emoji-js",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "packageManager": "pnpm@9.15.4",
   "description": "Emoji Library",
   "author": "Netcorext <aren@netcorext.com>",
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/netcorext/emoji-js.git"
@@ -48,29 +49,41 @@
     "dist"
   ],
   "scripts": {
+    "prepare": "simple-git-hooks",
     "build": "vite build",
     "bundle": "pnpm pack",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --cache --fix .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "typecheck": "tsc --noEmit --skipLibCheck"
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "clear": "find . -maxdepth 3 \\( -iname '*.tgz' -o -iname 'dist' -o -iname '.turbo' -o -iname '.output' -o -iname '.eslintcache' \\) -exec rm -rf {} +",
+    "clear:half": "find . -maxdepth 3 \\( -iname '*.tgz' -o -iname 'dist' -o -iname '.turbo' -o -iname '.nuxt' -o -iname '.output' -o -iname '.eslintcache' \\) -exec rm -rf {} +",
+    "clear:full": "find . -maxdepth 3 \\( -iname '*.tgz' -o -iname 'dist' -o -iname '.turbo' -o -iname '.nuxt' -o -iname '.output' -o -iname 'node_modules' \\) -exec rm -rf {} +",
+    "clear:whole": "find . -maxdepth 3 \\( -iname '*.tgz' -o -iname 'dist' -o -iname '.turbo' -o -iname '.nuxt' -o -iname '.output' -o -iname 'node_modules' -o -iname '*-lock.*' \\) -exec rm -rf {} +"
   },
   "dependencies": {
-    "fuse.js": "^7.1.0"
+    "fuse.js": "^7.1.0",
+    "semver": "^7.7.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.1.1",
     "@types/node": "^22.7.5",
+    "@types/semver": "^7.7.1",
     "consola": "^3.4.0",
     "eslint": "^9.19.0",
     "eslint-plugin-format": "^1.0.1",
     "glob": "^11.0.3",
     "readline": "^1.3.0",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "^5.7.3",
     "unbuild": "^2.0.0",
     "vite": "^5.4.8",
     "vite-plugin-dts": "^4.2.3",
     "vitest": "^2.1.2"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm typecheck && pnpm lint:fix",
+    "pre-push": "pnpm typecheck && pnpm lint"
   }
 }

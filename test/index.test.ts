@@ -15,6 +15,12 @@ describe('emoji', () => {
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
+  it('useEmoji filter version', () => {
+    const result = useEmoji({ version: '<17.0.0' })
+    consola.log('useEmoji filter version', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useEmoji filter status', () => {
     const result = useEmoji({ status: 'fully-qualified' })
     consola.log('useEmoji filter status', Object.keys(result).length, result)
@@ -50,6 +56,12 @@ describe('emoji', () => {
     consola.log('useSimpleEmoji filter keyword', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(result.length).toBeGreaterThan(1)
+  })
+  it('useSimpleEmoji filter version', () => {
+    const result = useSimpleEmoji({ version: '<17.0.0' })
+    consola.log('useSimpleEmoji filter version', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useSimpleEmoji filter status', () => {
     const result = useSimpleEmoji({ status: 'fully-qualified' })
@@ -87,6 +99,12 @@ describe('emoji', () => {
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
+  it('useEmojiByGroup filter version', () => {
+    const result = useEmojiByGroup({ version: '<17.0.0' })
+    consola.log('useEmojiByGroup filter version', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useEmojiByGroup filter status', () => {
     const result = useEmojiByGroup({ status: 'fully-qualified' })
     consola.log('useEmojiByGroup filter status', Object.keys(result).length, result)
@@ -122,6 +140,12 @@ describe('emoji', () => {
     consola.log('useEmojiBySubGroup filter keyword', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+  })
+  it('useEmojiBySubGroup filter version', () => {
+    const result = useEmojiBySubGroup({ version: '<17.0.0' })
+    consola.log('useEmojiBySubGroup filter version', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useEmojiBySubGroup filter status', () => {
     const result = useEmojiBySubGroup({ status: 'fully-qualified' })
