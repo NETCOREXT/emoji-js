@@ -4,14 +4,16 @@
 [![License](https://img.shields.io/npm/l/@netcorext/emoji-js)](https://github.com/netcorext/emoji-js/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-A modern emoji library based on the official Unicode emoji test file, providing a clean API for searching and categorizing emojis.
+A modern emoji library based on the official Unicode 17.0 emoji test file, providing a clean API for searching and categorizing emojis.
 
 ## ✨ Features
 
 - 🔍 **Smart Search**: Fuzzy search powered by Fuse.js
-- 📱 **Complete Coverage**: All official Unicode emojis included
-ref: https://www.unicode.org/Public/emoji/latest/emoji-test.txt
+- 📱 **Latest Unicode 17.0**: All official Unicode 17.0 emojis included
+ref: https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt
 - 🏷️ **Organized**: Group and subgroup classification
+- 📊 **Status Filtering**: Filter by emoji status (fully-qualified, unqualified, etc.)
+- 🎨 **Skin Tone Support**: Filter emojis with or without skin tone variations
 - 📦 **Zero Config**: Works out of the box
 - 🔧 **TypeScript**: Full type support
 - 🚀 **Modern**: ESM and CommonJS dual support
@@ -52,7 +54,7 @@ console.log(simpleEmojis) // ['❤️', '💛', '💚', ...]
 Get an array of complete emoji objects.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, group?: string, subgroup?: string }`
+- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Emoji[]`
 
@@ -69,10 +71,20 @@ const smileysEmojis = useEmoji({ group: 'Smileys & Emotion' })
 // Filter by subgroup
 const faceSmilingEmojis = useEmoji({ subgroup: 'face-smiling' })
 
+// Filter by status
+const fullyQualifiedEmojis = useEmoji({ status: 'fully-qualified' })
+
+// Filter emojis with skin tone variations
+const skinToneEmojis = useEmoji({ skinTone: true })
+
+// Filter emojis without skin tone variations
+const noSkinToneEmojis = useEmoji({ skinTone: false })
+
 // Combined filtering
 const result = useEmoji({
   keyword: 'smile',
-  group: 'Smileys & Emotion'
+  group: 'Smileys & Emotion',
+  status: 'fully-qualified'
 })
 ```
 
@@ -81,7 +93,7 @@ const result = useEmoji({
 Get a simplified array of emoji strings.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, group?: string, subgroup?: string }`
+- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `string[]`
 
@@ -93,6 +105,12 @@ console.log(emojis) // ['😀', '😃', '😄', ...]
 // Search related emojis
 const heartEmojis = useSimpleEmoji('heart')
 console.log(heartEmojis) // ['❤️', '💛', '💚', ...]
+
+// Get only fully-qualified emojis
+const qualifiedEmojis = useSimpleEmoji({ status: 'fully-qualified' })
+
+// Get emojis with skin tone variations
+const diverseEmojis = useSimpleEmoji({ skinTone: true })
 ```
 
 ### `useEmojiByGroup(filter?)`
@@ -100,7 +118,7 @@ console.log(heartEmojis) // ['❤️', '💛', '💚', ...]
 Organize emojis by groups.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, group?: string, subgroup?: string }`
+- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Record<string, Set<string>>`
 
@@ -118,6 +136,9 @@ console.log(groupedEmojis)
 
 // Search with specific keywords and group
 const searchGrouped = useEmojiByGroup('animal')
+
+// Group only fully-qualified emojis
+const qualifiedGrouped = useEmojiByGroup({ status: 'fully-qualified' })
 ```
 
 ### `useEmojiBySubGroup(filter?)`
@@ -125,7 +146,7 @@ const searchGrouped = useEmojiByGroup('animal')
 Organize emojis by groups and subgroups.
 
 **Parameters:**
-- `filter` (optional): `string | { keyword?: string, group?: string, subgroup?: string }`
+- `filter` (optional): `string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
 
 **Returns:** `Record<string, Record<string, Set<string>>>`
 
@@ -146,6 +167,12 @@ console.log(subGroupedEmojis)
   ...
 }
 */
+
+// Filter by specific criteria
+const filteredSubGroups = useEmojiBySubGroup({
+  group: 'People & Body',
+  skinTone: false
+})
 ```
 
 ## 🏷️ Type Definitions
@@ -153,12 +180,20 @@ console.log(subGroupedEmojis)
 ```typescript
 interface Emoji {
   code: string[] // Unicode codes
-  emoji: string // emoji character
   status: string // status (fully-qualified, minimally-qualified, etc.)
+  emoji: string // emoji character
+  version: string // Unicode version
   description: string // description
   group: string // group name
   subgroup: string // subgroup name
+  skinTone: boolean // has skin tone variations
 }
+
+type EmojiStatus = 'fully-qualified' | 'unqualified' | 'minimally-qualified' | 'component'
+
+type EmojiGroup = 'Smileys & Emotion' | 'People & Body' | 'Component' | 'Animals & Nature' | 'Food & Drink' | 'Travel & Places' | 'Activities' | 'Objects' | 'Symbols' | 'Flags'
+
+type EmojiSubGroup = 'face-smiling' | 'face-affection' | 'face-tongue' | 'face-hand' | 'face-neutral-skeptical' | 'face-sleepy' | 'face-unwell' | 'face-hat' | 'face-glasses' | 'face-concerned' | 'face-negative' | 'face-costume' | 'cat-face' | 'monkey-face' | 'heart' | 'emotion' | ... // and more
 ```
 
 ## 🎯 Use Cases
@@ -191,6 +226,47 @@ function analyzeEmotions(text: string) {
     emoji: emoji.emoji,
     emotion: emoji.description
   }))
+}
+```
+
+### 3. Status-based Filtering
+
+```typescript
+import { useEmoji } from '@netcorext/emoji-js'
+
+// Get only fully-qualified emojis for production use
+function getProductionEmojis() {
+  return useEmoji({ status: 'fully-qualified' })
+}
+
+// Get component emojis for advanced use cases
+function getComponentEmojis() {
+  return useEmoji({ status: 'component' })
+}
+```
+
+### 4. Skin Tone Management
+
+```typescript
+import { useEmoji } from '@netcorext/emoji-js'
+
+// Get emojis that support skin tone variations
+function getDiverseEmojis() {
+  return useEmoji({ skinTone: true })
+}
+
+// Get emojis without skin tone variations for consistency
+function getUniformEmojis() {
+  return useEmoji({ skinTone: false })
+}
+
+// Filter people emojis with skin tone support
+function getPeopleWithSkinTones() {
+  return useEmoji({
+    group: 'People & Body',
+    skinTone: true,
+    status: 'fully-qualified'
+  })
 }
 ```
 

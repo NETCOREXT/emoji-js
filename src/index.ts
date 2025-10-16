@@ -1,3 +1,4 @@
+import type { EmojiGroup, EmojiStatus, EmojiSubGroup } from './types/emoji'
 import Fuse from 'fuse.js'
 import { EMOJI } from './types/emoji'
 
@@ -6,21 +7,21 @@ const fuse = new Fuse(EMOJI, {
   threshold: 0.3,
 })
 
-export function useEmoji(filter?: string | { keyword?: string, group?: string, subgroup?: string }) {
-  const { keyword, group, subgroup } = typeof filter === 'string' ? { keyword: filter } : filter || {}
+export function useEmoji(filter?: string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
+  const { keyword, status, group, subgroup, skinTone } = typeof filter === 'string' ? { keyword: filter } : filter || {}
   const emojis = keyword ? fuse.search(keyword).map(result => result.item) : EMOJI
 
-  return group || subgroup
-    ? emojis.filter(e => (group ? e.group.toLowerCase() === group.toLowerCase() : true) && (subgroup ? e.subgroup.toLowerCase() === subgroup.toLowerCase() : true))
+  return status !== undefined || group !== undefined || subgroup !== undefined || skinTone !== undefined
+    ? emojis.filter(e => (status ? e.status.toLowerCase() === status.toLowerCase() : true) && (group ? e.group.toLowerCase() === group.toLowerCase() : true) && (subgroup ? e.subgroup.toLowerCase() === subgroup.toLowerCase() : true) && (skinTone !== undefined ? e.skinTone === skinTone : true))
     : emojis
 }
 
-export function useSimpleEmoji(filter?: string | { keyword?: string, group?: string, subgroup?: string }) {
+export function useSimpleEmoji(filter?: string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   return emojis.map(e => e.emoji)
 }
 
-export function useEmojiByGroup(filter?: string | { keyword?: string, group?: string, subgroup?: string }) {
+export function useEmojiByGroup(filter?: string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   const grouped: Record<string, Set<string>> = {}
   for (const emoji of emojis) {
@@ -31,7 +32,7 @@ export function useEmojiByGroup(filter?: string | { keyword?: string, group?: st
   return grouped
 }
 
-export function useEmojiBySubGroup(filter?: string | { keyword?: string, group?: string, subgroup?: string }) {
+export function useEmojiBySubGroup(filter?: string | { keyword?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   const grouped: Record<string, Record<string, Set<string>>> = {}
   for (const emoji of emojis) {

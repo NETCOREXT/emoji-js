@@ -1,85 +1,150 @@
+import { consola } from 'consola'
 import { describe, expect, it } from 'vitest'
 import { useEmoji, useEmojiByGroup, useEmojiBySubGroup, useSimpleEmoji } from '../src/index'
 
 describe('emoji', () => {
   it('useEmoji', () => {
     const result = useEmoji()
+    consola.log('useEmoji', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1000)
   })
   it('useEmoji filter keyword', () => {
     const result = useEmoji('smile')
+    consola.log('useEmoji filter keyword', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
+  it('useEmoji filter status', () => {
+    const result = useEmoji({ status: 'fully-qualified' })
+    consola.log('useEmoji filter status', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useEmoji filter group', () => {
     const result = useEmoji({ group: 'Smileys & Emotion' })
+    consola.log('useEmoji filter group', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useEmoji filter subgroup', () => {
     const result = useEmoji({ subgroup: 'face-smiling' })
+    consola.log('useEmoji filter subgroup', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
+  it('useEmoji filter skinTone', () => {
+    const result = useEmoji({ skinTone: false })
+    consola.log('useEmoji filter skinTone', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useSimpleEmoji', () => {
     const result = useSimpleEmoji()
+    consola.log('useSimpleEmoji', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(result.length).toBeGreaterThan(1000)
   })
   it('useSimpleEmoji filter keyword', () => {
     const result = useSimpleEmoji('smile')
+    consola.log('useSimpleEmoji filter keyword', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(result.length).toBeGreaterThan(1)
   })
+  it('useSimpleEmoji filter status', () => {
+    const result = useSimpleEmoji({ status: 'fully-qualified' })
+    consola.log('useSimpleEmoji filter status', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useSimpleEmoji filter group', () => {
     const result = useSimpleEmoji({ group: 'Smileys & Emotion' })
+    consola.log('useSimpleEmoji filter group', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useSimpleEmoji filter subgroup', () => {
     const result = useSimpleEmoji({ subgroup: 'face-smiling' })
+    consola.log('useSimpleEmoji filter subgroup', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
+  it('useSimpleEmoji filter skinTone', () => {
+    const result = useSimpleEmoji({ skinTone: false })
+    consola.log('useSimpleEmoji filter skinTone', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThan(1)
   })
   it('useEmojiByGroup', () => {
     const result = useEmojiByGroup()
+    consola.log('useEmojiByGroup', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(10)
   })
   it('useEmojiByGroup filter keyword', () => {
     const result = useEmojiByGroup('smile')
+    consola.log('useEmojiByGroup filter keyword', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
+  it('useEmojiByGroup filter status', () => {
+    const result = useEmojiByGroup({ status: 'fully-qualified' })
+    consola.log('useEmojiByGroup filter status', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useEmojiByGroup filter group', () => {
     const result = useEmojiByGroup({ group: 'Smileys & Emotion' })
+    consola.log('useEmojiByGroup filter group', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
   it('useEmojiByGroup filter subgroup', () => {
     const result = useEmojiByGroup({ subgroup: 'face-smiling' })
+    consola.log('useEmojiByGroup filter subgroup', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
+  it('useEmojiByGroup filter skinTone', () => {
+    const result = useEmojiByGroup({ skinTone: false })
+    consola.log('useEmojiByGroup filter skinTone', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useEmojiBySubGroup', () => {
     const result = useEmojiBySubGroup()
+    consola.log('useEmojiBySubGroup', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(10)
   })
   it('useEmojiBySubGroup filter keyword', () => {
     const result = useEmojiBySubGroup('smile')
+    consola.log('useEmojiBySubGroup filter keyword', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
+  it('useEmojiBySubGroup filter status', () => {
+    const result = useEmojiBySubGroup({ status: 'fully-qualified' })
+    consola.log('useEmojiBySubGroup filter status', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
+  })
   it('useEmojiBySubGroup filter group', () => {
     const result = useEmojiBySubGroup({ group: 'Smileys & Emotion' })
+    consola.log('useEmojiBySubGroup filter group', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
   })
   it('useEmojiBySubGroup filter subgroup', () => {
     const result = useEmojiBySubGroup({ subgroup: 'face-smiling' })
+    consola.log('useEmojiBySubGroup filter subgroup', Object.keys(result).length, result)
     expect(result).toBeDefined()
     expect(Object.keys(result).length).toBeGreaterThanOrEqual(1)
+  })
+  it('useEmojiBySubGroup filter skinTone', () => {
+    const result = useEmojiBySubGroup({ skinTone: false })
+    consola.log('useEmojiBySubGroup filter skinTone', Object.keys(result).length, result)
+    expect(result).toBeDefined()
+    expect(Object.keys(result).length).toBeGreaterThan(1)
   })
 })
