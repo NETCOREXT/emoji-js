@@ -10,52 +10,62 @@ const fuse = new Fuse(EMOJI, {
 
 /**
  * Get emoji list
- * @param filter keyword | { keyword?, version?, status?, group?, subgroup?, skinTone? }
+ * @param filter keyword | { keyword?, emoji?, version?, status?, group?, subgroup?, skinTone? }
  * - keyword: fuzzy search by description
+ * - emoji: exact match by emoji character or array of emoji characters
  * - version: semver version, e.g. '>=13.0.0', '<14.0.0'
- * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component'
- * - group: Emoji group, e.g. 'Smileys & Emotion'
- * - subgroup: Emoji subgroup, e.g. 'face-smiling'
+ * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component' or array of status values
+ * - group: Emoji group, e.g. 'Smileys & Emotion' or array of groups
+ * - subgroup: Emoji subgroup, e.g. 'face-smiling' or array of subgroups
  * - skinTone: boolean, whether to include skin tone variations
  * @returns Emoji[]
  */
-export function useEmoji(filter?: string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
-  const { keyword, version, status, group, subgroup, skinTone } = typeof filter === 'string' ? { keyword: filter } : filter || {}
+export function useEmoji(filter?: string | { keyword?: string, emoji?: string | string[], version?: string, status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }) {
+  const { keyword, emoji, version, status, group, subgroup, skinTone } = typeof filter === 'string' ? { keyword: filter } : filter || {}
   const emojis = keyword ? fuse.search(keyword).map(result => result.item) : EMOJI
 
-  return version !== undefined || status !== undefined || group !== undefined || subgroup !== undefined || skinTone !== undefined
-    ? emojis.filter(e => (version ? semver.satisfies(`${e.version}.0`, version) : true) && (status ? e.status.toLowerCase() === status.toLowerCase() : true) && (group ? e.group.toLowerCase() === group.toLowerCase() : true) && (subgroup ? e.subgroup.toLowerCase() === subgroup.toLowerCase() : true) && (skinTone !== undefined ? e.skinTone === skinTone : true))
+  return emoji !== undefined || version !== undefined || status !== undefined || group !== undefined || subgroup !== undefined || skinTone !== undefined
+    ? emojis.filter((e) => {
+        return (emoji ? (Array.isArray(emoji) ? emoji.includes(e.emoji) : e.emoji === emoji) : true)
+          && (version ? semver.satisfies(`${e.version}.0`, version) : true)
+          && (status ? (Array.isArray(status) ? status.includes(e.status as EmojiStatus) : e.status === status) : true)
+          && (group ? (Array.isArray(group) ? group.includes(e.group as EmojiGroup) : e.group === group) : true)
+          && (subgroup ? (Array.isArray(subgroup) ? subgroup.includes(e.subgroup as EmojiSubGroup) : e.subgroup === subgroup) : true)
+          && (skinTone !== undefined ? e.skinTone === skinTone : true)
+      })
     : emojis
 }
 
 /**
  * Get simple emoji list
- * @param filter keyword | { keyword?, version?, status?, group?, subgroup?, skinTone? }
+ * @param filter keyword | { keyword?, emoji?, version?, status?, group?, subgroup?, skinTone? }
  * - keyword: fuzzy search by description
+ * - emoji: exact match by emoji character or array of emoji characters
  * - version: semver version, e.g. '>=13.0.0', '<14.0.0'
- * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component'
- * - group: Emoji group, e.g. 'Smileys & Emotion'
- * - subgroup: Emoji subgroup, e.g. 'face-smiling'
+ * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component' or array of status values
+ * - group: Emoji group, e.g. 'Smileys & Emotion' or array of groups
+ * - subgroup: Emoji subgroup, e.g. 'face-smiling' or array of subgroups
  * - skinTone: boolean, whether to include skin tone variations
  * @returns string[] (emoji characters)
  */
-export function useSimpleEmoji(filter?: string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
+export function useSimpleEmoji(filter?: string | { keyword?: string, emoji?: string | string[], version?: string, status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   return emojis.map(e => e.emoji)
 }
 
 /**
  * Get emoji grouped by group
- * @param filter keyword | { keyword?, version?, status?, group?, subgroup?, skinTone? }
+ * @param filter keyword | { keyword?, emoji?, version?, status?, group?, subgroup?, skinTone? }
  * - keyword: fuzzy search by description
+ * - emoji: exact match by emoji character or array of emoji characters
  * - version: semver version, e.g. '>=13.0.0', '<14.0.0'
- * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component'
- * - group: Emoji group, e.g. 'Smileys & Emotion'
- * - subgroup: Emoji subgroup, e.g. 'face-smiling'
+ * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component' or array of status values
+ * - group: Emoji group, e.g. 'Smileys & Emotion' or array of groups
+ * - subgroup: Emoji subgroup, e.g. 'face-smiling' or array of subgroups
  * - skinTone: boolean, whether to include skin tone variations
  * @returns Record<string, Set<string>> (group -> set of emoji characters)
  */
-export function useEmojiByGroup(filter?: string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
+export function useEmojiByGroup(filter?: string | { keyword?: string, emoji?: string | string[], version?: string, status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   const grouped: Record<string, Set<string>> = {}
   for (const emoji of emojis) {
@@ -68,16 +78,17 @@ export function useEmojiByGroup(filter?: string | { keyword?: string, version?: 
 
 /**
  * Get emoji grouped by subgroup within their groups
- * @param filter keyword | { keyword?, version?, status?, group?, subgroup?, skinTone? }
+ * @param filter keyword | { keyword?, emoji?, version?, status?, group?, subgroup?, skinTone? }
  * - keyword: fuzzy search by description
+ * - emoji: exact match by emoji character or array of emoji characters
  * - version: semver version, e.g. '>=13.0.0', '<14.0.0'
- * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component'
- * - group: Emoji group, e.g. 'Smileys & Emotion'
- * - subgroup: Emoji subgroup, e.g. 'face-smiling'
+ * - status: 'fully-qualified' | 'minimally-qualified' | 'unqualified' | 'component' or array of status values
+ * - group: Emoji group, e.g. 'Smileys & Emotion' or array of groups
+ * - subgroup: Emoji subgroup, e.g. 'face-smiling' or array of subgroups
  * - skinTone: boolean, whether to include skin tone variations
  * @returns Record<string, Record<string, Set<string>>> (group -> subgroup -> set of emoji characters)
  */
-export function useEmojiBySubGroup(filter?: string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }) {
+export function useEmojiBySubGroup(filter?: string | { keyword?: string, emoji?: string | string[], version?: string, status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }) {
   const emojis = filter ? useEmoji(filter) : EMOJI
   const grouped: Record<string, Record<string, Set<string>>> = {}
   for (const emoji of emojis) {

@@ -1,13 +1,10 @@
 {
   "name": "@netcorext/emoji-js",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "packageManager": "pnpm@9.15.4",
   "description": "Emoji Library",
   "author": "Netcorext <aren@netcorext.com>",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -15,6 +12,10 @@
   },
   "bugs": {
     "url": "https://github.com/netcorext/emoji-js/issues"
+  },
+  "keywords": ["emoji"],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   },
   "sideEffects": false,
   "exports": {

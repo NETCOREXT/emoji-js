@@ -8,14 +8,16 @@ A modern emoji library based on the official Unicode 17.0 emoji test file, provi
 
 ## ✨ Features
 
-- 🔍 **Smart Search**: Fuzzy search powered by Fuse.js
 - 📱 **Latest Unicode 17.0**: All official Unicode 17.0 emojis included
   ref: https://www.unicode.org/Public/17.0.0/emoji/emoji-test.txt
+- 🔍 **Smart Search**: Fuzzy search powered by Fuse.js
+- 🎯 **Exact Match**: Find emoji by exact character match
+- 📅 **Flexible Filtering**: Support both single values and arrays for all filter parameters (emoji, version, status, group, subgroup)
 - 🏷️ **Organized**: Group and subgroup classification
 - 📊 **Status Filtering**: Filter by emoji status (fully-qualified, unqualified, etc.)
 - 🎨 **Skin Tone Support**: Filter emojis with or without skin tone variations
-- � **Version Filtering**: Filter by Unicode version using semver (e.g., '>=13.0.0', '<17.0.0')
-- �📦 **Zero Config**: Works out of the box
+- 📅 **Version Filtering**: Filter by Unicode version using semver (e.g., '>=13.0.0', '<17.0.0')
+- 📦 **Zero Config**: Works out of the box
 - 🔧 **TypeScript**: Full type support
 - 🚀 **Modern**: ESM and CommonJS dual support
 
@@ -43,6 +45,14 @@ const allEmojis = useEmoji()
 // Search for emojis containing "smile"
 const smileEmojis = useEmoji('smile')
 
+// Get detailed information about a specific emoji
+const heartInfo = useEmoji({ emoji: '❤️' })
+console.log(heartInfo[0]) // { code: ['2764', 'FE0F'], emoji: '❤️', description: 'red heart', ... }
+
+// Get multiple emojis at once
+const partyEmojis = useEmoji({ emoji: ['🎉', '🎊', '🥳'] })
+console.log(partyEmojis.map(e => e.emoji)) // ['🎉', '🎊', '🥳']
+
 // Get simple emoji string array
 const simpleEmojis = useSimpleEmoji('heart')
 console.log(simpleEmojis) // ['❤️', '💛', '💚', ...]
@@ -56,7 +66,8 @@ Get an array of complete emoji objects.
 
 **Parameters:**
 
-- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+- `filter` (optional): `string | { keyword?: string, emoji?: string | string[], version?: string | string[], status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }`
+  - All filter parameters (except `keyword` and `skinTone`) support both single values and arrays
 
 **Returns:** `Emoji[]`
 
@@ -67,8 +78,18 @@ const allEmojis = useEmoji()
 // Keyword search
 const searchResult = useEmoji('cat')
 
+// Exact emoji match
+const exactMatch = useEmoji({ emoji: '😀' })
+const heartInfo = useEmoji({ emoji: '❤️' })
+
+// Multiple emoji match
+const multipleEmojis = useEmoji({ emoji: ['😀', '😁', '❤️'] })
+
 // Filter by group
 const smileysEmojis = useEmoji({ group: 'Smileys & Emotion' })
+
+// Filter by multiple groups
+const multipleGroups = useEmoji({ group: ['Smileys & Emotion', 'People & Body'] })
 
 // Filter by subgroup
 const faceSmilingEmojis = useEmoji({ subgroup: 'face-smiling' })
@@ -93,6 +114,13 @@ const result = useEmoji({
   version: '>=13.0.0',
   status: 'fully-qualified'
 })
+
+// Advanced array filtering
+const advancedResult = useEmoji({
+  group: ['Smileys & Emotion', 'People & Body'],
+  status: ['fully-qualified', 'minimally-qualified'],
+  version: ['>=13.0.0', '<17.0.0']
+})
 ```
 
 ### `useSimpleEmoji(filter?)`
@@ -101,7 +129,7 @@ Get a simplified array of emoji strings.
 
 **Parameters:**
 
-- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+- `filter` (optional): `string | { keyword?: string, emoji?: string | string[], version?: string | string[], status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }`
 
 **Returns:** `string[]`
 
@@ -113,6 +141,17 @@ console.log(emojis) // ['😀', '😃', '😄', ...]
 // Search related emojis
 const heartEmojis = useSimpleEmoji('heart')
 console.log(heartEmojis) // ['❤️', '💛', '💚', ...]
+
+// Check if a specific emoji exists (returns array with the emoji or empty array)
+const checkEmoji = useSimpleEmoji({ emoji: '🎉' })
+console.log(checkEmoji) // ['🎉'] or []
+
+// Get multiple specific emojis
+const multipleEmojis = useSimpleEmoji({ emoji: ['🎉', '🎊', '🥳'] })
+console.log(multipleEmojis) // ['🎉', '🎊', '🥳']
+
+// Get emojis from multiple groups
+const multipleGroupEmojis = useSimpleEmoji({ group: ['Activities', 'Objects'] })
 
 // Get only fully-qualified emojis
 const qualifiedEmojis = useSimpleEmoji({ status: 'fully-qualified' })
@@ -130,7 +169,7 @@ Organize emojis by groups.
 
 **Parameters:**
 
-- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+- `filter` (optional): `string | { keyword?: string, emoji?: string | string[], version?: string | string[], status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }`
 
 **Returns:** `Record<string, Set<string>>`
 
@@ -162,7 +201,7 @@ Organize emojis by groups and subgroups.
 
 **Parameters:**
 
-- `filter` (optional): `string | { keyword?: string, version?: string, status?: EmojiStatus, group?: EmojiGroup, subgroup?: EmojiSubGroup, skinTone?: boolean }`
+- `filter` (optional): `string | { keyword?: string, emoji?: string | string[], version?: string | string[], status?: EmojiStatus | EmojiStatus[], group?: EmojiGroup | EmojiGroup[], subgroup?: EmojiSubGroup | EmojiSubGroup[], skinTone?: boolean }`
 
 **Returns:** `Record<string, Record<string, Set<string>>>`
 
@@ -287,7 +326,61 @@ function getPeopleWithSkinTones() {
 }
 ```
 
-### 5. Version-based Filtering
+### 5. Exact Emoji Matching
+
+```typescript
+import { useEmoji } from '@netcorext/emoji-js'
+
+// Get detailed information about a specific emoji
+function getEmojiInfo(emojiChar: string) {
+  const result = useEmoji({ emoji: emojiChar })
+  return result[0] // Returns the emoji object with full details
+}
+
+// Validate if an emoji exists in the dataset
+function isValidEmoji(emojiChar: string) {
+  const result = useEmoji({ emoji: emojiChar })
+  return result.length > 0
+}
+
+// Get multiple emoji information at once
+function getMultipleEmojiInfo(emojiChars: string[]) {
+  return emojiChars.map(emoji => ({
+    emoji,
+    info: useEmoji({ emoji })[0] || null
+  }))
+}
+
+// Find emoji variants or related emojis
+function findEmojiVariants(emojiChar: string) {
+  const originalEmoji = useEmoji({ emoji: emojiChar })[0]
+  if (!originalEmoji) return []
+
+  // Find other emojis in the same subgroup
+  return useEmoji({
+    subgroup: originalEmoji.subgroup,
+    status: 'fully-qualified'
+  })
+}
+
+// Example usage
+const heartInfo = getEmojiInfo('❤️')
+console.log(heartInfo)
+/*
+{
+  code: ['2764', 'FE0F'],
+  status: 'fully-qualified',
+  emoji: '❤️',
+  version: '1.1',
+  description: 'red heart',
+  group: 'Smileys & Emotion',
+  subgroup: 'heart',
+  skinTone: false
+}
+*/
+```
+
+### 6. Version-based Filtering
 
 ```typescript
 import { useEmoji, useSimpleEmoji } from '@netcorext/emoji-js'
@@ -321,6 +414,65 @@ function isEmojiSupportedInVersion(emoji: string, targetVersion: string) {
   const emojis = useEmoji({ version: `<=${targetVersion}` })
   return emojis.some(e => e.emoji === emoji)
 }
+```
+
+### 7. Advanced Array-based Filtering
+
+**All filter parameters support arrays for multiple value matching**
+
+```typescript
+import { useEmoji, useSimpleEmoji } from '@netcorext/emoji-js'
+
+// Get multiple specific emojis at once
+function getMultipleEmojis(emojiList: string[]) {
+  return useEmoji({ emoji: emojiList })
+}
+
+// Filter by multiple groups
+function getEmojisFromCategories(categories: string[]) {
+  return useSimpleEmoji({ group: categories as any[] })
+}
+
+// Filter by multiple statuses
+function getEmojisByStatuses(statuses: ('fully-qualified' | 'minimally-qualified')[]) {
+  return useEmoji({ status: statuses })
+}
+
+// Complex array filtering
+function getFilteredEmojis() {
+  return useEmoji({
+    group: ['Smileys & Emotion', 'People & Body', 'Animals & Nature'],
+    status: ['fully-qualified', 'minimally-qualified'],
+    version: ['>=13.0.0', '<17.0.0'],
+    skinTone: false
+  })
+}
+
+// Get emojis from multiple subgroups
+function getFaceEmojis() {
+  return useSimpleEmoji({
+    subgroup: ['face-smiling', 'face-affection', 'face-tongue'] as any[]
+  })
+}
+
+// Batch emoji validation
+function validateMultipleEmojis(emojiList: string[]) {
+  const found = useEmoji({ emoji: emojiList })
+  return emojiList.map(emoji => ({
+    emoji,
+    isValid: found.some(e => e.emoji === emoji),
+    info: found.find(e => e.emoji === emoji) || null
+  }))
+}
+
+// Example usage
+const partyEmojis = getMultipleEmojis(['🎉', '🎊', '🥳', '🎈'])
+const expressionEmojis = getFaceEmojis()
+const validationResults = validateMultipleEmojis(['😀', '❤️', '🦄', '🌟'])
+
+console.log('Party emojis:', partyEmojis.map(e => e.emoji))
+console.log('Expression emojis:', expressionEmojis.slice(0, 10))
+console.log('Validation:', validationResults)
 ```
 
 ## 🔧 Development
